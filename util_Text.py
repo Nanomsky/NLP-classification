@@ -6,9 +6,6 @@ Created on Thu Apr 23 22:53:39 2020
 @author: osita
 """
 
-import sys
-import pandas as pd
-import numpy as np
 import nltk
 import re
 import string
