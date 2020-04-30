@@ -13,6 +13,211 @@ import seaborn as sns
 
 
 ###############################################################################
+# edit distance
+
+def editdist(X,Y):
+    '''
+    Computes edit distance between two strings 
+    
+    Input
+    =====
+    s, t = Two strings 
+    
+    Output
+    ======
+    Outputs an integer value indicating the distance between the two strings
+    '''
+    
+    m = len(X)
+    n = len(Y)
+    D = np.zeros((m+1,n+1))
+    
+    for i in range(0,m+1):
+        D[i,0] = i
+    
+    for j in range(0,n+1):
+        D[0,j] = j
+    
+    for i in range(1,m+1):
+        for j in range(1,n+1):
+            
+            if X[i-1] == Y[j-1]:
+                D[i,j] = D[i-1,j-1]
+            else:
+                D[i,j] = min(D[i-1,j] + 1, D[i,j-1] + 1, D[i-1,j-1] + 2) #deletion, insertion, substitution
+             
+    return D[-1,-1]
+
+###############################################################################
+# edit distance
+
+def editdist_norm(X,Y):
+    '''
+    Computes edit distance between two strings and normalises this by the number
+    of items common to both strings being compared
+    
+    Input
+    =====
+    s, t = Two strings 
+    
+    Output
+    ======
+    Outputs an integer value indicating the distance between the two strings
+    '''
+    
+    m = len(X)
+    n = len(Y)
+    D = np.zeros((m+1,n+1))
+    
+    for i in range(0,m+1):
+        D[i,0] = i
+    
+    for j in range(0,n+1):
+        D[0,j] = j
+    
+    for i in range(1,m+1):
+        for j in range(1,n+1):
+            
+            if X[i-1] == Y[j-1]:
+                D[i,j] = D[i-1,j-1]
+            else:
+                D[i,j] = min(D[i-1,j] + 1, D[i,j-1] + 1, D[i-1,j-1] + 2) #deletion, insertion, substitution
+    
+    dist = D[-1,-1]
+    num_intersect = len(list(set(X).intersection(set(Y))))
+    
+    if num_intersect == 0:
+        edit_dist = dist/1
+    else:
+        edit_dist = dist/num_intersect
+    
+    return edit_dist
+
+###############################################################################
+# edit distance
+    
+def editdist_norm_max(X,Y):
+    '''
+    Computes edit distance between two strings and normalises with the maximum lenth of
+    both strings
+    
+    Input
+    =====
+    s, t = Two strings 
+    
+    Output
+    ======
+    Outputs an integer value indicating the distance between the two strings
+    '''
+    
+    m = len(X)
+    n = len(Y)
+    D = np.zeros((m+1,n+1))
+    
+    for i in range(0,m+1):
+        D[i,0] = i
+    
+    for j in range(0,n+1):
+        D[0,j] = j
+    
+    for i in range(1,m+1):
+        for j in range(1,n+1):
+            
+            if X[i-1] == Y[j-1]:
+                D[i,j] = D[i-1,j-1]
+            else:
+                D[i,j] = min(D[i-1,j] + 1, D[i,j-1] + 1, D[i-1,j-1] + 2) #deletion, insertion, substitution
+    
+    dist = D[-1,-1]
+    
+    maxlength = max(m,n)    
+    if maxlength == 0:
+        edit_dist = dist/1
+    else:
+        edit_dist = dist/maxlength
+    
+    return edit_dist
+
+###############################################################################  
+# edit distance
+    
+def editdist_norm_intersect(X,Y):
+    '''
+    Computes edit distance between two strings and normalises with the maximum lenth of
+    both strings
+    
+    Input
+    =====
+    s, t = Two strings 
+    
+    Output
+    ======
+    Outputs an integer value indicating the distance between the two strings
+    '''
+    
+    m = len(X)
+    n = len(Y)
+    D = np.zeros((m+1,n+1))
+    
+    for i in range(0,m+1):
+        D[i,0] = i
+    
+    for j in range(0,n+1):
+        D[0,j] = j
+    
+    for i in range(1,m+1):
+        for j in range(1,n+1):
+            
+            if X[i-1] == Y[j-1]:
+                D[i,j] = D[i-1,j-1]
+            else:
+                D[i,j] = min(D[i-1,j] + 1, D[i,j-1] + 1, D[i-1,j-1] + 2) #deletion, insertion, substitution
+    
+    dist = D[-1,-1]
+    num_intersect = len(list(set(X).intersection(set(Y))))
+    edit_dist = dist/(2**num_intersect)
+    
+    return edit_dist 
+
+###############################################################################
+    # edit distance
+
+def editdist_Levenshtein(X,Y):
+    '''
+    Computes Levenshtein edit distance between two strings 
+    
+    Input
+    =====
+    s, t = Two strings 
+    
+    Output
+    ======
+    Outputs an integer value indicating the distance between the two strings
+    '''
+    
+    m = len(X)
+    n = len(Y)
+    D = np.zeros((m+1,n+1))
+    
+    for i in range(0,m+1):
+        D[i,0] = i
+    
+    for j in range(0,n+1):
+        D[0,j] = j
+    
+    for i in range(1,m+1):
+        for j in range(1,n+1):
+            
+            if X[i-1] == Y[j-1]:
+                D[i,j] = D[i-1,j-1]
+            else:
+                D[i,j] = min(D[i-1,j] + 1, D[i,j-1] + 1, D[i-1,j-1] + 1) #deletion, insertion, substitution
+             
+    return D[-1,-1]
+
+###############################################################################
+
+
 # Simple Kernels
 """
 Created on Sun Jan 26 03:03:06 2020
@@ -72,34 +277,46 @@ def kernelfun(X,Y, kernel, params):
     
     #elif kernel =='sigmoid': #Squared exponential kernel
     
-    # edit distance kernels
+    # edit distance kernels 
+    elif kernel == 'editdist':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = editdist(u,v) 
+    
     elif kernel == 'editdist_Levenshtein':
         for i in range(0,n):
             for j in range(0,m):
-                u = Y[i,:]
-                v = X[j,:]
+                u = Y[i,:][0]
+                v = X[j,:][0]
                 H[i,j] = editdist_Levenshtein(u,v) 
         
     elif kernel == 'editdist_norm_intersect':
         for i in range(0,n):
             for j in range(0,m):
-                u = Y[i,:]
-                v = X[j,:]
+                u = Y[i,:][0]
+                v = X[j,:][0]
                 H[i,j] = editdist_norm_intersect(u,v)
         
     elif kernel == 'editdist_norm_max':
         for i in range(0,n):
             for j in range(0,m):
-                u = Y[i,:]
-                v = X[j,:]
+                u = Y[i,:][0]
+                v = X[j,:][0]
                 H[i,j] = editdist_norm_max(u,v)
         
     elif kernel == 'editdist_norm':
         for i in range(0,n):
             for j in range(0,m):
-                u = Y[i,:]
-                v = X[j,:]
+                u = Y[i,:][0]
+                v = X[j,:][0]
                 H[i,j] = editdist_norm(u,v)
+        
+        
+       
+             
+        
         
     return H
 
@@ -391,221 +608,18 @@ def splitdata(X, Y, rand_seed, tnx):
     len1= int(np.round(len(index)* tnx, 0))
     len2= int(np.round(len(index)* (1-tnx)/2, 0))
 
-    xtr  = X[index[0:len1]]
-    xva  = X[index[len1:(len1 + len2)]]
-    xte  = X[index[(len1 + len2):]]
+    xtr  = X[index[0:len1],:]
+    xva  = X[index[len1:(len1 + len2)],:]
+    xte  = X[index[(len1 + len2):],:]
     
     ytr  = Y[index[0:len1]]
     yva  = Y[index[len1:(len1 + len2)]]
     yte  = Y[index[(len1 + len2):]]
     
-    print('{} training examples'.format(xtr.shape[0]))
-    print('{} validation examples'.format(xva.shape[0]))
-    print('{} testing examples'.format(xte.shape[0]))
+    print('{} training examples and {} features'.format(xtr.shape[0],xtr.shape[1]))
+    print('{} validation examples and {} features'.format(xva.shape[0],xva.shape[1]))
+    print('{} testing examples and {} features'.format(xte.shape[0],xte.shape[1]))
     
     return xtr, xva, xte, ytr.reshape(len(ytr),1), yva.reshape(len(yva),1), yte.reshape(len(yte),1)
-
-###############################################################################
-# edit distance
-
-def editdist(X,Y):
-    '''
-    Computes edit distance between two strings 
-    
-    Input
-    =====
-    s, t = Two strings 
-    
-    Output
-    ======
-    Outputs an integer value indicating the distance between the two strings
-    '''
-    
-    m = len(X)
-    n = len(Y)
-    D = np.zeros((m+1,n+1))
-    
-    for i in range(0,m+1):
-        D[i,0] = i
-    
-    for j in range(0,n+1):
-        D[0,j] = j
-    
-    for i in range(1,m+1):
-        for j in range(1,n+1):
-            
-            if X[i-1] == Y[j-1]:
-                D[i,j] = D[i-1,j-1]
-            else:
-                D[i,j] = min(D[i-1,j] + 1, D[i,j-1] + 1, D[i-1,j-1] + 2) #deletion, insertion, substitution
-             
-    return D[-1,-1]
-
-###############################################################################
-# edit distance
-
-def editdist_norm(X,Y):
-    '''
-    Computes edit distance between two strings and normalises this by the number
-    of items common to both strings being compared
-    
-    Input
-    =====
-    s, t = Two strings 
-    
-    Output
-    ======
-    Outputs an integer value indicating the distance between the two strings
-    '''
-    
-    m = len(X)
-    n = len(Y)
-    D = np.zeros((m+1,n+1))
-    
-    for i in range(0,m+1):
-        D[i,0] = i
-    
-    for j in range(0,n+1):
-        D[0,j] = j
-    
-    for i in range(1,m+1):
-        for j in range(1,n+1):
-            
-            if X[i-1] == Y[j-1]:
-                D[i,j] = D[i-1,j-1]
-            else:
-                D[i,j] = min(D[i-1,j] + 1, D[i,j-1] + 1, D[i-1,j-1] + 2) #deletion, insertion, substitution
-    
-    dist = D[-1,-1]
-    num_intersect = len(list(set(X).intersection(set(Y))))
-    
-    if num_intersect == 0:
-        edit_dist = dist/1
-    else:
-        edit_dist = dist/num_intersect
-    
-    return edit_dist
-
-###############################################################################
-# edit distance
-    
-def editdist_norm_max(X,Y):
-    '''
-    Computes edit distance between two strings and normalises with the maximum lenth of
-    both strings
-    
-    Input
-    =====
-    s, t = Two strings 
-    
-    Output
-    ======
-    Outputs an integer value indicating the distance between the two strings
-    '''
-    
-    m = len(X)
-    n = len(Y)
-    D = np.zeros((m+1,n+1))
-    
-    for i in range(0,m+1):
-        D[i,0] = i
-    
-    for j in range(0,n+1):
-        D[0,j] = j
-    
-    for i in range(1,m+1):
-        for j in range(1,n+1):
-            
-            if X[i-1] == Y[j-1]:
-                D[i,j] = D[i-1,j-1]
-            else:
-                D[i,j] = min(D[i-1,j] + 1, D[i,j-1] + 1, D[i-1,j-1] + 2) #deletion, insertion, substitution
-    
-    dist = D[-1,-1]
-    
-    maxlength = max(m,n)    
-    if maxlength == 0:
-        edit_dist = dist/1
-    else:
-        edit_dist = dist/maxlength
-    
-    return edit_dist
-
-###############################################################################  
-# edit distance
-    
-def editdist_norm_intersect(X,Y):
-    '''
-    Computes edit distance between two strings and normalises with the maximum lenth of
-    both strings
-    
-    Input
-    =====
-    s, t = Two strings 
-    
-    Output
-    ======
-    Outputs an integer value indicating the distance between the two strings
-    '''
-    
-    m = len(X)
-    n = len(Y)
-    D = np.zeros((m+1,n+1))
-    
-    for i in range(0,m+1):
-        D[i,0] = i
-    
-    for j in range(0,n+1):
-        D[0,j] = j
-    
-    for i in range(1,m+1):
-        for j in range(1,n+1):
-            
-            if X[i-1] == Y[j-1]:
-                D[i,j] = D[i-1,j-1]
-            else:
-                D[i,j] = min(D[i-1,j] + 1, D[i,j-1] + 1, D[i-1,j-1] + 2) #deletion, insertion, substitution
-    
-    dist = D[-1,-1]
-    num_intersect = len(list(set(X).intersection(set(Y))))
-    edit_dist = dist/(2**num_intersect)
-    
-    return edit_dist 
-
-###############################################################################
-    # edit distance
-
-def editdist_Levenshtein(X,Y):
-    '''
-    Computes Levenshtein edit distance between two strings 
-    
-    Input
-    =====
-    s, t = Two strings 
-    
-    Output
-    ======
-    Outputs an integer value indicating the distance between the two strings
-    '''
-    
-    m = len(X)
-    n = len(Y)
-    D = np.zeros((m+1,n+1))
-    
-    for i in range(0,m+1):
-        D[i,0] = i
-    
-    for j in range(0,n+1):
-        D[0,j] = j
-    
-    for i in range(1,m+1):
-        for j in range(1,n+1):
-            
-            if X[i-1] == Y[j-1]:
-                D[i,j] = D[i-1,j-1]
-            else:
-                D[i,j] = min(D[i-1,j] + 1, D[i,j-1] + 1, D[i-1,j-1] + 1) #deletion, insertion, substitution
-             
-    return D[-1,-1]
 
 ###############################################################################
