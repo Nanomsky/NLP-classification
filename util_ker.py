@@ -312,9 +312,6 @@ def kernelfun(X,Y, kernel, params):
                 u = Y[i,:][0]
                 v = X[j,:][0]
                 H[i,j] = editdist_norm(u,v)
-        
-        
-       
              
         
         
