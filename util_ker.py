@@ -5,13 +5,24 @@ Created on Tue Mar 10 23:24:19 2020
 
 @author: osita
 """
-
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import time
+import sys
 
+from libsvm.svmutil import * #for desktop
 
+sns.set()
+#sys.path.append("C:/Users/NN133/Documents/libsvm-3.22/python") #for laptop
+#from svmutil import *
 
+##############################################################################
+#plt.style.use('fivethirtyeight')
+plt.style.use('ggplot')
+import warnings
+warnings.filterwarnings('ignore')
 ###############################################################################
 # edit distance
 
@@ -51,7 +62,88 @@ def editdist(X,Y):
 ###############################################################################
 # edit distance
 
+def edist(X,Y):
+    '''
+    Computes edit distance between two strings 
+    
+    Input
+    =====
+    s, t = Two strings 
+    
+    Output
+    ======
+    Outputs an integer value indicating the distance between the two strings
+    '''
+    
+    m = len(X)
+    n = len(Y)
+    D = np.zeros((m+1,n+1))
+    
+    for i in range(0,m+1):
+        D[i,0] = i
+    
+    for j in range(0,n+1):
+        D[0,j] = j
+    
+    for i in range(1,m+1):
+        for j in range(1,n+1):
+            
+            if X[i-1] == Y[j-1]:
+                D[i,j] = D[i-1,j-1]
+            else:
+                D[i,j] = min(D[i-1,j] + 1, D[i,j-1] + 1, D[i-1,j-1] + 2) #deletion, insertion, substitution
+             
+    return D[-1,-1]
+
+###############################################################################
+# edit distance
+
 def editdist_norm(X,Y):
+    '''
+    Computes edit distance between two strings and normalises this by the number
+    of items common to both strings being compared
+    
+    Input
+    =====
+    s, t = Two strings 
+    
+    Output
+    ======
+    Outputs an integer value indicating the distance between the two strings
+    '''
+    
+    m = len(X)
+    n = len(Y)
+    D = np.zeros((m+1,n+1))
+    
+    for i in range(0,m+1):
+        D[i,0] = i
+    
+    for j in range(0,n+1):
+        D[0,j] = j
+    
+    for i in range(1,m+1):
+        for j in range(1,n+1):
+            
+            if X[i-1] == Y[j-1]:
+                D[i,j] = D[i-1,j-1]
+            else:
+                D[i,j] = min(D[i-1,j] + 1, D[i,j-1] + 1, D[i-1,j-1] + 2) #deletion, insertion, substitution
+    
+    dist = D[-1,-1]
+    num_intersect = len(list(set(X).intersection(set(Y))))
+    
+    if num_intersect == 0:
+        edit_dist = dist/1
+    else:
+        edit_dist = dist/num_intersect
+    
+    return edit_dist
+
+###############################################################################
+# edit distance
+
+def edist_n(X,Y):
     '''
     Computes edit distance between two strings and normalises this by the number
     of items common to both strings being compared
@@ -138,6 +230,51 @@ def editdist_norm_max(X,Y):
     
     return edit_dist
 
+###############################################################################
+# edit distance
+    
+def edist_m(X,Y):
+    '''
+    Computes edit distance between two strings and normalises with the maximum lenth of
+    both strings
+    
+    Input
+    =====
+    s, t = Two strings 
+    
+    Output
+    ======
+    Outputs an integer value indicating the distance between the two strings
+    '''
+    
+    m = len(X)
+    n = len(Y)
+    D = np.zeros((m+1,n+1))
+    
+    for i in range(0,m+1):
+        D[i,0] = i
+    
+    for j in range(0,n+1):
+        D[0,j] = j
+    
+    for i in range(1,m+1):
+        for j in range(1,n+1):
+            
+            if X[i-1] == Y[j-1]:
+                D[i,j] = D[i-1,j-1]
+            else:
+                D[i,j] = min(D[i-1,j] + 1, D[i,j-1] + 1, D[i-1,j-1] + 2) #deletion, insertion, substitution
+    
+    dist = D[-1,-1]
+    
+    maxlength = max(m,n)    
+    if maxlength == 0:
+        edit_dist = dist/1
+    else:
+        edit_dist = dist/maxlength
+    
+    return edit_dist
+
 ###############################################################################  
 # edit distance
     
@@ -179,10 +316,88 @@ def editdist_norm_intersect(X,Y):
     
     return edit_dist 
 
+###############################################################################  
+# edit distance
+    
+def edist_i(X,Y):
+    '''
+    Computes edit distance between two strings and normalises with the maximum lenth of
+    both strings
+    
+    Input
+    =====
+    s, t = Two strings 
+    
+    Output
+    ======
+    Outputs an integer value indicating the distance between the two strings
+    '''
+    
+    m = len(X)
+    n = len(Y)
+    D = np.zeros((m+1,n+1))
+    
+    for i in range(0,m+1):
+        D[i,0] = i
+    
+    for j in range(0,n+1):
+        D[0,j] = j
+    
+    for i in range(1,m+1):
+        for j in range(1,n+1):
+            
+            if X[i-1] == Y[j-1]:
+                D[i,j] = D[i-1,j-1]
+            else:
+                D[i,j] = min(D[i-1,j] + 1, D[i,j-1] + 1, D[i-1,j-1] + 2) #deletion, insertion, substitution
+    
+    dist = D[-1,-1]
+    num_intersect = len(list(set(X).intersection(set(Y))))
+    edit_dist = dist/(2**num_intersect)
+    
+    return edit_dist 
+
+
 ###############################################################################
     # edit distance
 
 def editdist_Levenshtein(X,Y):
+    '''
+    Computes Levenshtein edit distance between two strings 
+    
+    Input
+    =====
+    s, t = Two strings 
+    
+    Output
+    ======
+    Outputs an integer value indicating the distance between the two strings
+    '''
+    
+    m = len(X)
+    n = len(Y)
+    D = np.zeros((m+1,n+1))
+    
+    for i in range(0,m+1):
+        D[i,0] = i
+    
+    for j in range(0,n+1):
+        D[0,j] = j
+    
+    for i in range(1,m+1):
+        for j in range(1,n+1):
+            
+            if X[i-1] == Y[j-1]:
+                D[i,j] = D[i-1,j-1]
+            else:
+                D[i,j] = min(D[i-1,j] + 1, D[i,j-1] + 1, D[i-1,j-1] + 1) #deletion, insertion, substitution
+             
+    return D[-1,-1]
+
+###############################################################################
+    # edit distance
+
+def edist_L(X,Y):
     '''
     Computes Levenshtein edit distance between two strings 
     
@@ -239,35 +454,37 @@ def kernelfun(X,Y, kernel, params):
     if kernel == 'linear':
         H = np.dot(Y,X.T)
     
-    elif kernel == 'homogeneous_poly': 
+    elif kernel == 'H_poly': 
         #Homogeneous polynomial kernel. All monomials of degree d
-        H = np.dot(Y,X.T)  ** params[0]
-    
+        #H = np.dot(Y,X.T)
+        H = np.dot(Y,X.T)**params
     elif kernel == 'poly': 
         #Non - Homogeneous polynomial kernel
-        H = (np.dot(Y,X.T) + 1) ** params[0]  
+        H = (np.dot(Y,X.T) + 1) ** params
     
     elif kernel =='rbf':
          for i in range(0,n):
             for j in range(0,m):
                 u = Y[i,:]
-                v = X[j,:].T
-                H[i,j] = np.exp(-(np.dot((u-v),(u-v).T)/2 * (params[0]**2)))
+                v = X[j,:]
+                H[i,j] = np.exp(-(np.dot((u-v),(u-v).T)/2 * (params**2)))
 
     elif kernel =='erbf':
          for i in range(0,n):
             for j in range(0,m):
                 u = Y[i,:]
-                v = X[j,:].T
-                H[i,j] = np.exp(-np.sqrt((np.dot((u-v),(u-v).T)/2 * (params[0]**2))))
+                v = X[j,:]
+                H[i,j] = np.exp(-np.sqrt(np.dot((u-v),(u-v).T))/(2*(params**2)))
 
     elif kernel =='laplace':
          for i in range(0,n):
             for j in range(0,m):
                 u = Y[i,:]
-                v = X[j,:].T
-                H[i,j] = np.sum(np.exp(-(np.abs(u-v)/params[0])))
-
+                v = X[j,:]
+                H[i,j] = np.sum(np.exp(-np.abs(u-v)/params))
+               # H[i,j] = np.sum(np.exp(-(np.abs(u-v)/params[0])))
+                
+                
     elif kernel =='sqrexp': #Squared exponential kernel
          for i in range(0,n):
             for j in range(0,m):
@@ -311,14 +528,162 @@ def kernelfun(X,Y, kernel, params):
             for j in range(0,m):
                 u = Y[i,:][0]
                 v = X[j,:][0]
-                H[i,j] = editdist_norm(u,v)
-             
+                H[i,j] = editdist_norm(u,v)     
+                
+    # edit distance kernels 
+    elif kernel == 'edist':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = 1 - edist(u,v) 
+    
+    elif kernel == 'edist_L':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = 1 - edist_L(u,v) 
+        
+    elif kernel == 'edist_i':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = 1 - edist_i(u,v)
+        
+    elif kernel == 'edist_m':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = 1 - edist_m(u,v)
+        
+    elif kernel == 'edist_n':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = 1 - edist_n(u,v)   
+                
+      # edit distance kernels 
+    elif kernel == 'Aedist':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                h = edist(u,v) 
+                H[i,j] = h/(1+h)
+    
+    elif kernel == 'Aedist_L':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                h = edist_L(u,v) 
+                H[i,j] = h/(1+h)
+        
+    elif kernel == 'Aedist_i':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                h = edist_i(u,v)
+                H[i,j] = h/(1+h)
+        
+    elif kernel == 'Aedist_m':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                h = edist_m(u,v)
+                H[i,j] = h/(1+h)
+        
+    elif kernel == 'Aedist_n':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                h = edist_n(u,v)
+                H[i,j] = h/(1+h)  
+                #####              
+                
+    # edit distance kernels 
+    elif kernel == 'Geditdist':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = np.exp(- params * editdist(u,v)) 
+    
+    elif kernel == 'Geditdist_Levenshtein':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = np.exp(- params * editdist_Levenshtein(u,v)) 
+        
+    elif kernel == 'Geditdist_norm_intersect':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = np.exp(- params * editdist_norm_intersect(u,v))
+        
+    elif kernel == 'Geditdist_norm_max':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = np.exp(- params * editdist_norm_max(u,v))
+        
+    elif kernel == 'Geditdist_norm':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = np.exp(- params * editdist_norm(u,v))    
+                
+    # edit distance kernels 
+    elif kernel == 'Gedist':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = np.exp(- params * (1 - edist(u,v)))
+    
+    elif kernel == 'Gedist_L':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = np.exp(- params * (1 - edist_L(u,v)))
+        
+    elif kernel == 'Gedist_i':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = np.exp(- params * (1 - edist_i(u,v)))
+        
+    elif kernel == 'Gedist_m':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = np.exp(- params * (1 - edist_m(u,v)))
+        
+    elif kernel == 'Gedist_n':
+        for i in range(0,n):
+            for j in range(0,m):
+                u = Y[i,:][0]
+                v = X[j,:][0]
+                H[i,j] = np.exp(- params * (1 - edist_n(u,v)))     
+        
         
         
     return H
 
-    
-    
 ###############################################################################
 #Test for positive definiteness
 def checkPSD(K):
@@ -380,8 +745,10 @@ Created on Fri Jan 31 06:52:41 2020
 
 def EvaluateTest(ylabel, Pred):
     
-    Evaluation = {}
+    ylabel =  np.asarray(ylabel/1.)
+    Pred   =  np.asarray(Pred)
     
+    Evaluation = {}
     FN,FP,TP,TN = 0,0,0,0
    
     for i in range(0,ylabel.shape[0]):
@@ -395,15 +762,14 @@ def EvaluateTest(ylabel, Pred):
                 FP+=1
             elif Pred[i]!=1:
                 FN+=1
-        #print(ylabel[i], Pred[i])
     TOTAL = TP + TN + FP + FN
     TPN   = TP+ TN
     
     print("--> The total of {0} predicted with only {1} accurate predictions".format(TOTAL,TPN))
     print('')
-    print('='*25)
+    print('='*23)
     print('Ground Truth comparison')
-    print('='*25)
+    print('='*23)
     print("Actual label is True while we predicted True - True Positive",format(TP))
     print("Actual label is False while we predicted True - False Positive",format(FP))
     print("Actual label is True while we predicted False - False Negative",format(FN))
@@ -465,8 +831,8 @@ def EvaluateTest(ylabel, Pred):
         Fscore = np.round(2 * ((precision * recall) / (precision + recall)),2)
     
     
-    print("--> {} positive outcomes prediticted".format(Pos))
-    print("--> {} negative outcomes prediticted".format(Neg))
+    print("--> {} positive outcomes predicted".format(Pos))
+    print("--> {} negative outcomes predicted".format(Neg))
     print("--> An accuracy of {} % was achieved".format(accu))
     print("--> Sensitity of {} was achieved".format(sen))
     print("--> Specificity of {} was achieved ".format(spec))
@@ -486,14 +852,16 @@ def EvaluateTest(ylabel, Pred):
     plt.figure(figsize=(8,4))
 
     #plt.suptitle("Confusion Matrixes",fontsize=24)
-    plt.title("Confusion Matrix")
+    plt.title("Confusion Matrix",fontsize=24)
     plt.subplots_adjust(wspace = 0.1, hspace= 0.01)
-    sns.heatmap(confusion_mat,annot=True,cmap="Reds",fmt='.2g',cbar=True, annot_kws={"size":15})
+    sns.heatmap(confusion_mat,annot=True,cmap="YlGnBu",fmt='.4g',cbar=True, annot_kws={"size":25})
+    plt.xticks(fontsize=18)
+    plt.yticks(fontsize=18)
     plt.show()
     
-    Evaluation = {"Pos": Pos, "Neg": Neg, "accu": accu,"sen": sen,
-                  "spec": spec, "RPP": RPP, "RNP": RNP, "miss": miss,
-                  "fall":fall, "NPV": NPV,"recall":recall, "precision":precision,
+    Evaluation = {"Pos": Pos, "Neg": Neg, "Accu": accu,"Sen": sen,
+                  "Spec": spec, "RPP": RPP, "RNP": RNP, "Miss": miss,
+                  "Fall":fall, "NPV": NPV,"Recall":recall, "Precision":precision,
                   "Fscore":Fscore}
     
     return Evaluation
@@ -535,7 +903,9 @@ Created on Sat Feb  1 03:25:51 2020
 @author: NN133
 """
 
-def computeRoc(p_label, p_val):
+def computeRoc(pred_label, pred_val):
+    
+ 
     '''
     Computes Receiver Operating Characteristics (ROC) Area Under Curve (AUC)
     
@@ -548,31 +918,84 @@ def computeRoc(p_label, p_val):
     ======
     AUC value
     '''
-    A =  p_val.copy()
-    
-    l2 = [p_val.index(x) for x in sorted(p_val,reverse=True) ]
-    c=[]
     Y=[]
+    l2 = [pred_val.index(x) for x in sorted(pred_val,reverse=True) ]
+    
     for i in l2:
-        
-        c.append(A[i])
-        Y.append(p_label[i])
+        Y.append(pred_label[i])
     
     Ya =np.asarray(Y)
-    stack_x = np.cumsum(Ya == -1)/np.sum(Ya ==-1) 
-    stack_y = np.cumsum(Ya == 1)/np.sum(Ya == 1) 
-    L = len(Ya)
     
-    auc = np.sum(np.multiply((stack_x[1:L]-stack_x[0:L-1]),(stack_y[1:L])))
+    if (np.sum(Ya ==-1) == 0) | (np.sum(Ya == 1) == 0):
+        auc = 0.5
+    else:     
+        stack_x = np.cumsum(Ya == -1)/np.sum(Ya ==-1) 
+        stack_y = np.cumsum(Ya == 1)/np.sum(Ya == 1) 
+        L = len(Ya)
+        auc = np.sum(np.multiply((stack_x[1:L]-stack_x[0:L-1]),(stack_y[1:L]))) 
     
-    plt.plot(stack_x,stack_y)
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title("ROC curve of AUC = {} ".format(round(auc, 2)))
-    
-    print("--> An AUC value of {} achieved".format(round(auc,2)))
+        fig = plt.figure()
+        fig.add_subplot(111)
+        plt.plot(stack_x,stack_y)
+        plt.plot([0, 1], [0, 1], 'k--')
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        #plt.title("ROC curve of AUC = {} ".format(round(auc, 2)))
+        plt.title("ROC curve of AUC = {} ".format(auc))
+        plt.show()
+        
+        print("--> An AUC value of {} achieved".format(auc))
     
     return auc
+
+###############################################################################
+    
+#def computeRoc2(pred_label, pred_val):
+#    
+#    from sklearn.metrics import roc_auc_score
+#    '''
+#    Computes Receiver Operating Characteristics (ROC) Area Under Curve (AUC)
+#     
+#    Input
+#    =====
+#    p_label =   predicted labels
+#    p_val   =   probability values for the predicted labels
+#    
+#    Output
+#    ======
+#    AUC value
+#    '''
+#    
+#    auc=  roc_auc_score(pred_label, pred_val)
+##    Y=[]
+##    l2 = [pred_val.index(x) for x in sorted(pred_val,reverse=True) ]
+##    
+##    for i in l2:
+##        Y.append(pred_label[i])
+##    
+##    Ya =np.asarray(Y)
+##    
+##    if (np.sum(Ya ==-1) == 0) | (np.sum(Ya == 1) == 0):
+##        auc = 0.5
+##    else:     
+##        stack_x = np.cumsum(Ya == -1)/np.sum(Ya ==-1) 
+##        stack_y = np.cumsum(Ya == 1)/np.sum(Ya == 1) 
+##        L = len(Ya)
+##        auc = np.sum(np.multiply((stack_x[1:L]-stack_x[0:L-1]),(stack_y[1:L]))) 
+##    
+##        fig = plt.figure()
+##        fig.add_subplot(111)
+##        plt.plot(stack_x,stack_y)
+##        plt.plot([0, 1], [0, 1], 'k--')
+##        plt.xlabel('False Positive Rate')
+##        plt.ylabel('True Positive Rate')
+##        #plt.title("ROC curve of AUC = {} ".format(round(auc, 2)))
+##        plt.title("ROC curve of AUC = {} ".format(auc))
+##        plt.show()
+##        
+##        print("--> An AUC value of {} achieved".format(auc))
+#    
+#    return auc
 
 ###############################################################################
 # Split Data
@@ -618,5 +1041,262 @@ def splitdata(X, Y, rand_seed, tnx):
     print('{} testing examples and {} features'.format(xte.shape[0],xte.shape[1]))
     
     return xtr, xva, xte, ytr.reshape(len(ytr),1), yva.reshape(len(yva),1), yte.reshape(len(yte),1)
+
+###############################################################################
+def intitializeKernels(m,n):
+    
+    '''
+    This function initializes the Training and Test Kernel Matrices
+    m = number of training examples
+    n = number of test examples 
+    '''
+    Train_kernel = np.zeros((m,m))
+    Test_kernel  = np.zeros((n,m))
+    
+    return Train_kernel,Test_kernel
+
+###############################################################################
+def addIndexToKernel(K_mat):
+    '''
+    This function appends an index column to the contructed kernel matrix
+    '''
+    n = K_mat.shape[0]
+    Hess_mat = np.concatenate((np.arange(n)[:,np.newaxis]+1, K_mat),axis=1)
+    
+    return Hess_mat
+
+###############################################################################
+def diag_dominace(A):
+   
+    diag_A = np.diag(A)
+    if np.sum(diag_A >= (np.sum(A, axis=1) - diag_A)) > len(diag_A):
+        print("The matrix is diagonally dominant")
+        dom = True
+    else:
+        print("The matrix is not diagonally dominant")
+        dom = False 
+    
+    if np.sum(diag_A > (np.sum(A, axis=1) - diag_A)) >= 1:
+        print("The matrix is diagonally dominant")
+    
+    return dom
+
+###############################################################################
+def numericStability(A):
+    '''
+    Checks to see if the kernel matrix has zero elements in its diagonal.
+    It adds a very small value to the matrix diagonal if condition is met
+    '''
+    epsilon = 1e-5
+    if sum(np.diag(A))==0:
+        np.diag(np.diag(A) + epsilon) + A
+        
+    return A
+###############################################################################        
+def fitkernelmodel(xtr, xte, ytr, yte, kernel, params):
+
+    Out = {}
+    for ker in kernel:
+        Result={}
+        for par in range(len(params[ker])):
+            
+            k_param = params[ker][par] #Select the parameter k_param for specified kernel 
+            #################################################################################
+            
+            start_time=time.time() #Check point to start timer
+            K_mat = kernelfun(xtr, xtr, ker, k_param) #Construct Kernel
+            end_time=time.time() #Check points the end time
+            Kernel_Time = end_time - start_time #Computes the time taken to construct the kernel
+            dom = diag_dominace(K_mat) #Test for diagomal dominance
+            PSDCheck = checkPSD(K_mat) #Checks if kernel is PSD
+            
+            Stage1 = (K_mat,Kernel_Time,dom,PSDCheck) #Create a tuple of variables to save
+            
+            K_mat = numericStability(K_mat) #Check for numerical stability
+            Trainkernel= np.multiply(np.matmul(ytr,ytr.T),K_mat) #Contrusts the Hessian Matrix
+            Hessian = addIndexToKernel(Trainkernel) #Appends an index to the Hessian
+            
+            #################################################################################
+            
+            start_time=time.time()#Check point to start timer
+            Test_K_mat = kernelfun(xtr, xte, ker, k_param) #Construct test kernel
+            end_time=time.time() #Check point to end timer
+            Test_Kernel_time = end_time - start_time #Computes the time taken to construct the kernel
+            
+            Stage2 = (Test_K_mat,Test_Kernel_time) #Create a tuple of variables to save
+            
+            Test_K_mat = addIndexToKernel(Test_K_mat) #Add index to the constructed test kernel
+            
+            #################################################################################
+            
+            model = svm_train(list(ytr), [list(r) for r in Hessian], ('-s 0 -b 1 -c 2 -t 4'))
+            numofSV = model.get_nr_sv()
+            svIndices = model.get_sv_indices()
+            
+            Stage3 = (numofSV, svIndices)
+            
+            #################################################################################
+            
+            p_label, p_acc, p_val = svm_predict(list(yte),[list(row) for row in Test_K_mat], model, ('-b 1'))
+            
+            Perf_eva = EvaluateTest(yte, p_label)
+            AucRoc   = computeRoc(yte, p_val)
+            
+            Stage4 = (Perf_eva, AucRoc, p_label, p_val)
+            #################################################################################
+            
+            Result[str(ker) +'_' + str(par)] = (Stage1, Stage2, Stage3, Stage4)
+    
+        Out[str(ker)] = Result
+        
+    return Out
+
+###############################################################################
+
+def Analyse_Results(Exp):
+    '''
+    This analyses and extracts data from the output of the fitkernelmodel
+    function. It outputs two DataFrames showing comparative results obtained
+    from testing one or more kernels
+    '''
+    #################################################################
+    #Initialise variables
+    ker_list, col_names = [],[]
+    Stage1, Stage2, Stage3, Stage4 =[],[],[],[]
+    train_kernel_time, test_kernel_time=[],[]
+    diag_Dominance,is_PSD = [],[]
+    num_Of_SV,AUC,Eva  = [],[],[]
+    
+    #################################################################
+    
+    Key1 = list(Exp.keys()) #Extract keys from the input dictionary into a list 
+    
+    for i in Key1:
+        ker_list.append(list(Exp[str(i)].keys())) #Extract list of kernels
+        for k in Exp[str(i)].keys():
+            col_names.append(k) #Extract kernel names  
+            Stage1.append(Exp[str(i)][k][0]) #Extract data created during the 4 stages
+            Stage2.append(Exp[str(i)][k][1]) 
+            Stage3.append(Exp[str(i)][k][2])
+            Stage4.append(Exp[str(i)][k][3])
+            
+    n = len(col_names) # also number of kernels to analyse
+    
+    #################################################################
+    #Visual plot of the kernels
+    fig = plt.figure(figsize=(15, 5*n/3)) 
+    fig.suptitle('Visual Comparison Kernel Matrices')       
+    for i in range(len(col_names)):
+        plt.subplot(np.ceil(n/3),3,i+1)
+        plt.imshow(Stage1[i][0])
+        plt.xlabel(str(col_names[i]), fontsize=15)
+        
+    plt.tight_layout()
+    plt.show()
+    
+    ##################################################################
+    #Extract the remaining variables and append to the relevant list
+    for i in range(n):
+        Eva.append(list(Stage4[i][0].values()))
+        train_kernel_time.append(Stage1[i][1])
+        test_kernel_time.append(Stage2[i][1])
+        diag_Dominance.append(Stage1[i][2])
+        is_PSD.append(Stage1[i][3])
+        num_Of_SV.append(Stage3[i][0])
+        AUC.append(Stage4[i][1])  
+    
+    ##################################################################
+    #Store the extracted data in DataFrames
+    perfEva = pd.DataFrame(Eva)
+    perfEva.columns = [key for key in Stage4[0][0].keys()]
+    perfEva.index = col_names 
+    
+    print(perfEva)
+    Kernel_Analysis = [train_kernel_time, test_kernel_time,
+                      diag_Dominance, is_PSD, num_Of_SV,AUC]
+    
+    Kernel_index    = ['train_kernel_time','test_kernel_time',
+                      'diag_Dominance','is_PSD','num_Of_SV','AUC']
+    
+    Kernel_Analysis_df = pd.DataFrame(Kernel_Analysis)
+    Kernel_Analysis_df =Kernel_Analysis_df.T
+    Kernel_Analysis_df.columns = Kernel_index
+    Kernel_Analysis_df.index= col_names 
+    
+    print(Kernel_Analysis_df)
+    return perfEva, Kernel_Analysis_df
+
+
+##############################################################################
+def plotResult(Perf):
+    fig = plt.figure(figsize=(20,20))
+    divs= Perf.index
+    index = np.arange(len(Perf.index))
+    width = 0.30
+    
+    ax1 = fig.add_subplot(421)
+    ax1.bar(index, Perf.Pos.values, width, color='red',label='Positive')
+    ax1.bar(index+width, Perf.Neg.values, width, color='orange', label='Negative' )
+    plt.title("Positive vs Negative ",fontsize=20)
+    #plt.xlabel("Kernels")
+    plt.ylabel("Count")
+    plt.xticks(index+width/2, divs,fontsize=15,rotation='vertical')
+    plt.legend(loc='best')
+    
+    ax2 = fig.add_subplot(422)
+    ax2.bar(index, Perf.Sen.values, width, color='maroon',label='Sensitivity')
+    ax2.bar(index+width, Perf.Spec.values, width, color='grey', label='Specificity' )
+    plt.title("Sensitivity vs Specificity ",fontsize=20)
+    #plt.xlabel("Kernels")
+    plt.ylabel("Count")
+    plt.xticks(index+width/2, divs,fontsize=15,rotation='vertical')
+    plt.legend(loc='best')
+    
+    ax3 = fig.add_subplot(423)
+    ax3.bar(index, Perf.Accu.values, width=0.4, color='darkblue',label='Accuracy')
+    plt.title("Accuracy",fontsize=20)
+    plt.ylabel("Count")
+    plt.xticks(index+width, divs,fontsize=15,rotation='vertical')
+    plt.legend(loc='best')
+    
+    ax4 = fig.add_subplot(424)
+    ax4.bar(index, Perf.Fscore.values, width=0.4, color='lightgreen', label='Fscore')
+    plt.title("Fscore",fontsize=20)
+    plt.ylabel("Count")
+    plt.xticks(index+width, divs,fontsize=15,rotation='vertical')
+    plt.legend(loc='best')
+    
+    ax5 = fig.add_subplot(425)
+    ax5.bar(index, Perf.Fall.values, width, color='plum',label='Fallout')
+    ax5.bar(index+width, Perf.Miss.values, width, color='salmon', label='Miss' )
+    plt.title("False Pos Rate (Fallout) vs False Neg Rate (Miss) ",fontsize=20)
+    #plt.xlabel("Kernels")
+    plt.ylabel("Count")
+    plt.xticks(index+width/2, divs,fontsize=15,rotation='vertical')
+    plt.legend(loc='best')
+    
+    ax6 = fig.add_subplot(426)
+    ax6.bar(index, Perf.Recall.values, width, color='c',label='Recall') #color - cyan
+    ax6.bar(index+width, Perf.Precision.values, width, color='m', label='Precision' )
+    plt.title("Recall vs Precision ",fontsize=20)
+    #plt.xlabel("Kernels")
+    plt.ylabel("Count")
+    plt.xticks(index+width/2, divs,fontsize=15,rotation='vertical')
+    plt.legend(loc='best')
+    
+    ax6 = fig.add_subplot(427)
+    ax6.bar(index, Perf.RPP.values, width, color='coral',label='RPP') #color - cyan
+    ax6.bar(index+width, Perf.RNP.values, width, color='khaki', label='RNP' )
+    plt.title("Rate of Pos  vs Rate of Neg Pred ",fontsize=20)
+    #plt.xlabel("Kernels")
+    plt.ylabel("Count")
+    plt.xticks(index+width/2, divs,fontsize=15,rotation='vertical')
+    plt.legend(loc='best')
+    
+    plt.tight_layout()
+    plt.show()
+
+
+    
 
 ###############################################################################
