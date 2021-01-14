@@ -742,7 +742,6 @@ Created on Fri Jan 31 06:52:41 2020
 
 @author: NN133
 """
-
 def EvaluateTest(ylabel, Pred):
     
     ylabel =  np.asarray(ylabel/1.)
@@ -770,10 +769,11 @@ def EvaluateTest(ylabel, Pred):
     print('='*23)
     print('Ground Truth comparison')
     print('='*23)
-    print("Actual label is True while we predicted True - True Positive",format(TP))
-    print("Actual label is False while we predicted True - False Positive",format(FP))
-    print("Actual label is True while we predicted False - False Negative",format(FN))
-    print("Actual label is False while we predicted False - True Negatve",format(TN))  
+    print('\033[90m')
+    print('\033[90m' + "Actual label is True while we predicted True   -  " +'\033[92m'+ "True Positive  = ",format(TP))
+    print('\033[90m' + "Actual label is False while we predicted False -  " +'\033[92m'+ "True Negatve   = ",format(TN))
+    print('\033[90m' + "Actual label is False while we predicted True  -  " +'\033[91m'+ "False Positive = ",format(FP))
+    print('\033[90m' + "Actual label is True while we predicted False  -  " +'\033[91m'+ "False Negative = ",format(FN))  
     print('') 
     #try:
     Pos        = TP+FP                                   # sum of TP and FP
@@ -830,7 +830,7 @@ def EvaluateTest(ylabel, Pred):
     else:
         Fscore = np.round(2 * ((precision * recall) / (precision + recall)),2)
     
-    
+    print('\033[94m') 
     print("--> {} positive outcomes predicted".format(Pos))
     print("--> {} negative outcomes predicted".format(Neg))
     print("--> An accuracy of {} % was achieved".format(accu))
@@ -865,6 +865,7 @@ def EvaluateTest(ylabel, Pred):
                   "Fscore":Fscore}
     
     return Evaluation
+    
 
 ###############################################################################
 # Normalise a Kernel    
@@ -902,37 +903,28 @@ Created on Sat Feb  1 03:25:51 2020
 
 @author: NN133
 """
-
-def computeRoc(pred_label, pred_val):
-    
- 
+def compute_Roc(pred_label, pred_val):
     '''
-    Computes Receiver Operating Characteristics (ROC) Area Under Curve (AUC)
-    
     Input
     =====
-    p_label =   predicted labels
-    p_val   =   probability values for the predicted labels
+    pred_label: predicted label - values (0,1) - (ndarray)
+    pred_val:   probability scores - (ndarray)
     
     Output
     ======
-    AUC value
+    auc: 
     '''
-    Y=[]
-    l2 = [pred_val.index(x) for x in sorted(pred_val,reverse=True) ]
-    
-    for i in l2:
-        Y.append(pred_label[i])
-    
-    Ya =np.asarray(Y)
-    
-    if (np.sum(Ya ==-1) == 0) | (np.sum(Ya == 1) == 0):
+    index = np.argsort(np.squeeze(-pred_val))
+    Y_pred_arranged = np.asarray(pred_label[:,index])
+    L = Y_pred_arranged.shape[1]     
+     
+    if (np.sum(Y_pred_arranged == 0) == 0) | (np.sum(Y_pred_arranged == 1) == 0):
         auc = 0.5
     else:     
-        stack_x = np.cumsum(Ya == -1)/np.sum(Ya ==-1) 
-        stack_y = np.cumsum(Ya == 1)/np.sum(Ya == 1) 
-        L = len(Ya)
-        auc = np.sum(np.multiply((stack_x[1:L]-stack_x[0:L-1]),(stack_y[1:L]))) 
+        stack_x = np.cumsum(Y_pred_arranged == 0)/np.sum(Y_pred_arranged == 0) 
+        stack_y = np.cumsum(Y_pred_arranged == 1)/np.sum(Y_pred_arranged == 1) 
+        
+        auc = np.sum(np.multiply((stack_x[1:L] - stack_x[0:L-1]),(stack_y[1:L]))) 
     
         fig = plt.figure()
         fig.add_subplot(111)
@@ -940,13 +932,11 @@ def computeRoc(pred_label, pred_val):
         plt.plot([0, 1], [0, 1], 'k--')
         plt.xlabel('False Positive Rate')
         plt.ylabel('True Positive Rate')
-        #plt.title("ROC curve of AUC = {} ".format(round(auc, 2)))
-        plt.title("ROC curve of AUC = {} ".format(auc))
+        plt.title("ROC curve of AUC = {} ".format(round(auc, 2)))
         plt.show()
-        
-        print("--> An AUC value of {} achieved".format(auc))
-    
-    return auc
+      
+    print("--> An AUC value of {} achieved".format(round(auc, 2)))
+
 
 ###############################################################################
     
