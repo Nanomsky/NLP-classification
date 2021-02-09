@@ -67,7 +67,7 @@ def extract_pos_neg_features(X,data_freq):
 
 ###############################################################################
 #Same as above
-def extract_pos_neg_features1(X, freqs):
+def extract_pos_neg_features2(X, freqs):
     
     '''This takes in a list containing the text and a word frequency dictionary
     For each unique word, it returns the number of occurrences with positive 
@@ -78,6 +78,30 @@ def extract_pos_neg_features1(X, freqs):
   
     for text in sample:
         
+        if (text,1) not in freqs: #We update the dictionary if text is missing
+            freqs[(text,1)]=1
+        if (text,0) not in freqs:
+            freqs[(text,0)]=1    
+            
+        # increment the word count for both labels
+        x[0,0] += freqs.get((text,1), 0)   
+        x[0,1] += freqs.get((text,0), 0) 
+    
+    return x
+
+###############################################################################
+#Same as above
+def extract_pos_neg_features1(X, freqs):
+    
+    '''This takes in a list containing the text and a word frequency dictionary
+    For each unique word, it returns the number of occurrences with positive 
+    and negative labels '''
+    
+    sample = set(X)
+    x = np.zeros((1, 2)) 
+  
+    for text in sample:
+                    
         # increment the word count for both labels
         x[0,0] += freqs.get((text,1), 0)   
         x[0,1] += freqs.get((text,0), 0) 
