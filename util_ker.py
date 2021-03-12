@@ -687,7 +687,7 @@ def kernelfun(X,Y, kernel, params):
 ###############################################################################
 #Test for positive definiteness
 def checkPSD(K):
-    if np.all(np.linalg.eigvals(K)):
+    if np.all(np.linalg.eigvals(K) > 0):
         
         print('--> Kernel is valid and PSD')
     else:
