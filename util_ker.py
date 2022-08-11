@@ -842,7 +842,7 @@ def EvaluateTest(ylabel, Pred):
     print("--> {} false positve rate (fallout) was achieved".format(fall))
     print("--> Negative predictive value of {}".format(NPV))
     print("--> Recall value 0f {} achieved".format(recall))
-    print("--> The precision vaue of {} achieved".format(precision))
+    print("--> The precision value of {} achieved".format(precision))
     print("--> An Fscore of {} achieved".format(Fscore))
     
     
